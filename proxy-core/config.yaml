@@ -9,8 +9,8 @@ spec:
           - git:
               repoURL: https://github.com/xenbyte/proxy-core-helm
               revision: HEAD
-              directories:
-                - path: "proxy-core"
+              # directories:
+                # - path: "."
           - git:
               repoURL: https://github.com/xenbyte/proxy-core-targets
               revision: HEAD
