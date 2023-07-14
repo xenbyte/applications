@@ -1,0 +1,45 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: proxy-core-demo
+spec:
+  generators:
+    - matrix:
+        generators:
+          - git:
+              repoURL: https://github.com/xenbyte/proxy-core-helm
+              revision: HEAD
+              directories:
+                - path: "proxy-core"
+          - git:
+              repoURL: https://github.com/xenbyte/proxy-core-targets
+              revision: HEAD
+              files:
+                - path: "proxy-core/**/target.json"
+              pathParamPrefix: target
+  template:
+    metadata:
+      name: 'proxy-core-{{clusterName}}'
+    spec:
+      project: 'default'
+      sources:
+        - repoURL: "https://charts.hasanbn.me"
+          chart: 'proxy-core'
+          targetRevision: "{{revision}}"
+          helm:
+            valueFiles:
+            - $values/proxy-core/values.yaml
+            - $values/proxy-core/{{clusterName}}/values.yaml
+        - repoURL: 'https://github.com/xenbyte/proxy-core-targets'
+          targetRevision: HEAD
+          ref: values
+      destination:
+        name: '{{clusterName}}'
+        namespace: 'proxy-core'
+
+      syncPolicy:
+        syncOptions:
+          - CreateNamespace=true
+        automated: 
+          prune: true 
+          selfHeal: true
